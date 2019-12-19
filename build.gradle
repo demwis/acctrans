@@ -8,6 +8,7 @@ version '1.0-SNAPSHOT'
 
 sourceCompatibility = 1.8
 def undertowVersion = "2.0.1.Final"
+def log4jVersion = "2.12.1"
 
 repositories {
     mavenCentral()
@@ -20,8 +21,13 @@ dependencies {
     compile "com.fasterxml.jackson.core:jackson-core:2.9.+"
     compile "com.fasterxml.jackson.core:jackson-databind:2.9.+"
     compile "com.fasterxml.jackson.module:jackson-module-kotlin:2.9.+"
+    compile "com.googlecode.cqengine:cqengine:3.4.0"
     compile "io.undertow:undertow-core:$undertowVersion"
     compile "io.undertow:undertow-servlet:$undertowVersion"
+    compile "org.apache.logging.log4j:log4j-core:$log4jVersion"
+    compile "org.apache.logging.log4j:log4j-slf4j-impl:$log4jVersion"
+    compile "org.slf4j:slf4j-api:1.7.29"
+
 
     testCompile group: 'junit', name: 'junit', version: '4.12'
 }
