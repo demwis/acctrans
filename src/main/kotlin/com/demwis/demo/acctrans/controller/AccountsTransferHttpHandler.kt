@@ -21,6 +21,10 @@ class AccountsTransferHttpHandler(private val jsonObjectMapper: ObjectMapper,
             return
 //            throw UnsupportedOperationException("Operation ${exchange.requestMethod} isn't supported")
         }
+        handleTransferMoneyRequest(exchange)
+    }
+
+    private fun handleTransferMoneyRequest(exchange: HttpServerExchange) {
         val request = jsonObjectMapper.readValue(exchange.inputStream, AccTransferRequest::class.java)
 //        val accFromId: String = exchange.queryParameters["accFrom"]?.first ?: throw IllegalArgumentException("accFrom parameter is required")
 //        val accToId: String = exchange.queryParameters["accTo"]?.first ?: throw IllegalArgumentException("accTo parameter is required")
@@ -32,3 +36,4 @@ class AccountsTransferHttpHandler(private val jsonObjectMapper: ObjectMapper,
 //        exchange.endExchange()
     }
 }
+

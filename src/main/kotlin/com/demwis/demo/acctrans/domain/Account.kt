@@ -1,13 +1,14 @@
 package com.demwis.demo.acctrans.domain
 
 import java.math.BigDecimal
+import java.time.LocalDate
 import java.util.concurrent.locks.ReentrantLock
 
-// TODO Once a day recalculate balance
-// TODO store date of last recalculation
-// TODO is negative balance allowed
-data class Account(val accId: String,
-                   @Volatile var eodBalance: BigDecimal
+data class Account
+@JvmOverloads constructor(val accId: String,
+                   val negativeBalanceAllowed: Boolean = false,
+                   @Volatile var eodBalance: BigDecimal = BigDecimal.ZERO,
+                   @Volatile var balanceLastUpdateDate: LocalDate
 ) {
     val lock = ReentrantLock()
 }
