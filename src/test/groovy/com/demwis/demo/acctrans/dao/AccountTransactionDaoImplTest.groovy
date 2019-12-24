@@ -15,7 +15,7 @@ import java.util.concurrent.ConcurrentSkipListMap
 
 import static org.unitils.reflectionassert.ReflectionAssert.assertLenientEquals
 
-class AccTransactionDaoImplTest extends Specification {
+class AccountTransactionDaoImplTest extends Specification {
 
     def "Should transfer money properly"() {
         given:
@@ -27,7 +27,7 @@ class AccTransactionDaoImplTest extends Specification {
         def nowProvider = Mock(NowProvider) {
             getLocalDateTime() >> now
         }
-        def dao = new AccTransactionDaoImpl(nowProvider)
+        def dao = new AccountTransactionDaoImpl(nowProvider)
 
         when:
         def resultTransactionId = dao.transferMoney(accountFrom, accountTo, amount)
@@ -54,7 +54,7 @@ class AccTransactionDaoImplTest extends Specification {
         def nowProvider = Mock(NowProvider) {
             getLocalDateTime() >> now
         }
-        def dao = new AccTransactionDaoImpl(nowProvider)
+        def dao = new AccountTransactionDaoImpl(nowProvider)
 
         when:
         def resultTransactionId = dao.transferMoney(accountFrom, accountTo, amount)
@@ -81,7 +81,7 @@ class AccTransactionDaoImplTest extends Specification {
         def nowProvider = Mock(NowProvider) {
             getLocalDateTime() >> now
         }
-        def dao = new AccTransactionDaoImpl(nowProvider)
+        def dao = new AccountTransactionDaoImpl(nowProvider)
 
         when:
         dao.transferMoney(accountFrom, accountTo, amount)
@@ -105,7 +105,7 @@ class AccTransactionDaoImplTest extends Specification {
         def nowProvider = Mock(NowProvider) {
             getLocalDateTime() >> now
         }
-        def dao = new AccTransactionDaoImpl(nowProvider)
+        def dao = new AccountTransactionDaoImpl(nowProvider)
         def firstTranPair = addTransaction(dao, accountExt.accId, accountFrom.accId, BigDecimal.valueOf(500.4), firstTime)
         def secondTranPair = addTransaction(dao, accountExt.accId, accountFrom.accId, BigDecimal.valueOf(400.6), secondTime)
         def thirdTranPair = addTransaction(dao, accountExt.accId, accountFrom.accId, BigDecimal.valueOf(300), thirdTime)
@@ -141,7 +141,7 @@ class AccTransactionDaoImplTest extends Specification {
         def nowProvider = Mock(NowProvider) {
             getLocalDateTime() >> now
         }
-        def dao = new AccTransactionDaoImpl(nowProvider)
+        def dao = new AccountTransactionDaoImpl(nowProvider)
 
         when:
         dao.transferMoney(accountFrom, accountFrom, amount)
@@ -160,7 +160,7 @@ class AccTransactionDaoImplTest extends Specification {
         def nowProvider = Mock(NowProvider) {
             getLocalDateTime() >> now
         }
-        def dao = new AccTransactionDaoImpl(nowProvider)
+        def dao = new AccountTransactionDaoImpl(nowProvider)
 
         when:
         dao.transferMoney(accountFrom, accountTo, BigDecimal.valueOf(amount))
@@ -187,7 +187,7 @@ class AccTransactionDaoImplTest extends Specification {
         def nowProvider = Mock(NowProvider) {
             getLocalDateTime() >> now
         }
-        def dao = new AccTransactionDaoImpl(nowProvider)
+        def dao = new AccountTransactionDaoImpl(nowProvider)
         addTransaction(dao, accountFrom.accId, accountTo.accId, BigDecimal.valueOf(500.4), firstTime)
         addTransaction(dao, accountFrom.accId, accountTo.accId, BigDecimal.valueOf(400.6), secondTime)
         addTransaction(dao, accountFrom.accId, accountTo.accId, BigDecimal.valueOf(300), thirdTime)
@@ -206,7 +206,7 @@ class AccTransactionDaoImplTest extends Specification {
         result == BigDecimal.valueOf(650)
     }
 
-    private Pair<AccountTransaction, AccountTransaction> addTransaction(AccTransactionDaoImpl dao, String accFromId, String accToId, BigDecimal amount, LocalDateTime time)
+    private Pair<AccountTransaction, AccountTransaction> addTransaction(AccountTransactionDaoImpl dao, String accFromId, String accToId, BigDecimal amount, LocalDateTime time)
     {
         def transactionId = dao.transactionIdSequencer.incrementAndGet()
         def fromTransaction = new AccountTransaction(transactionId, accFromId, amount.negate(), time)
@@ -237,7 +237,7 @@ class AccTransactionDaoImplTest extends Specification {
         def nowProvider = Mock(NowProvider) {
             getLocalDateTime() >> fifthTime
         }
-        def dao = new AccTransactionDaoImpl(nowProvider)
+        def dao = new AccountTransactionDaoImpl(nowProvider)
         addTransaction(dao, accountFrom.accId, accountTo.accId, BigDecimal.valueOf(500.4), firstTime)
         addTransaction(dao, accountFrom.accId, accountTo.accId, BigDecimal.valueOf(400.6), secondTime)
         addTransaction(dao, accountFrom.accId, accountTo.accId, BigDecimal.valueOf(300), thirdTime)
@@ -274,7 +274,7 @@ class AccTransactionDaoImplTest extends Specification {
         def nowProvider = Mock(NowProvider) {
             getLocalDateTime() >> fifthTime
         }
-        def dao = new AccTransactionDaoImpl(nowProvider)
+        def dao = new AccountTransactionDaoImpl(nowProvider)
         addTransaction(dao, accountFrom.accId, accountTo.accId, BigDecimal.valueOf(500.4), firstTime)
         addTransaction(dao, accountFrom.accId, accountTo.accId, BigDecimal.valueOf(400.6), secondTime)
         addTransaction(dao, accountFrom.accId, accountTo.accId, BigDecimal.valueOf(300), thirdTime)

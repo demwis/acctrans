@@ -29,7 +29,7 @@ class AccountsTransferHttpHandler(private val jsonObjectMapper: ObjectMapper,
 //        val accFromId: String = exchange.queryParameters["accFrom"]?.first ?: throw IllegalArgumentException("accFrom parameter is required")
 //        val accToId: String = exchange.queryParameters["accTo"]?.first ?: throw IllegalArgumentException("accTo parameter is required")
 //        val amount: BigDecimal = exchange.queryParameters["amount"]?.first?.toBigDecimal() ?: throw IllegalArgumentException("Amount parameter is required")
-        val transactionId = accountService.transferAssets(request.accFromId, request.accToId, request.amount)
+        val transactionId = accountService.transferMoney(request.accFromId, request.accToId, request.amount)
 
         val response = AccTransferResponse(request, transactionId)
         exchange.responseSender.send(jsonObjectMapper.writeValueAsString(response))

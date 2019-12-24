@@ -2,7 +2,7 @@ package com.demwis.demo.acctrans.server
 
 import com.demwis.demo.acctrans.controller.AccountsHttpHandler
 import com.demwis.demo.acctrans.controller.AccountsTransferHttpHandler
-import com.demwis.demo.acctrans.dao.AccTransactionDaoImpl
+import com.demwis.demo.acctrans.dao.AccountTransactionDaoImpl
 import com.demwis.demo.acctrans.dao.AccountsDaoImpl
 import com.demwis.demo.acctrans.service.AccountService
 import com.demwis.demo.acctrans.service.AccountServiceImpl
@@ -37,7 +37,7 @@ fun main(args: Array<String>) {
 
     val accountsDao = AccountsDaoImpl()
 
-    val accTransactionDao = AccTransactionDaoImpl()
+    val accTransactionDao = AccountTransactionDaoImpl()
 
 
     val recalculateBalanceExecutor = Executors.newFixedThreadPool(10)

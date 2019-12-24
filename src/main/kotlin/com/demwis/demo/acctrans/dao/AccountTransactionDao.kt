@@ -14,7 +14,7 @@ import java.util.concurrent.ConcurrentNavigableMap
 import java.util.concurrent.ConcurrentSkipListMap
 import java.util.concurrent.atomic.AtomicLong
 
-interface AccTransactionDao {
+interface AccountTransactionDao {
 
     fun transferMoney(accountFrom: Account, accountTo: Account, amount: BigDecimal): Long
 
@@ -22,9 +22,9 @@ interface AccTransactionDao {
                                             fromInclusive: Boolean = true, toInclusive: Boolean = true): BigDecimal
 }
 
-class AccTransactionDaoImpl
+class AccountTransactionDaoImpl
     @JvmOverloads constructor(private val nowProvider: NowProvider = DefaultNowProvider,
-                            transactionIdSequencerSupplier: () -> AtomicLong = { AtomicLong() }): AccTransactionDao {
+                            transactionIdSequencerSupplier: () -> AtomicLong = { AtomicLong() }): AccountTransactionDao {
     private val transactionIdSequencer: AtomicLong = transactionIdSequencerSupplier()
 
     private val accTransactionsById =
