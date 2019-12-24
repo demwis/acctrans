@@ -4,6 +4,7 @@ import com.demwis.common.DefaultNowProvider
 import com.demwis.common.NowProvider
 import com.demwis.demo.acctrans.domain.Account
 import com.demwis.demo.acctrans.domain.AccountTransaction
+import org.slf4j.LoggerFactory
 import java.math.BigDecimal
 import java.time.LocalDate
 import java.time.LocalDateTime
@@ -25,6 +26,8 @@ interface AccountTransactionDao {
 class AccountTransactionDaoImpl
     @JvmOverloads constructor(private val nowProvider: NowProvider = DefaultNowProvider,
                             transactionIdSequencerSupplier: () -> AtomicLong = { AtomicLong() }): AccountTransactionDao {
+    private val log = LoggerFactory.getLogger(AccountTransactionDaoImpl::class.java)
+
     private val transactionIdSequencer: AtomicLong = transactionIdSequencerSupplier()
 
     private val accTransactionsById =
@@ -40,6 +43,7 @@ class AccountTransactionDaoImpl
             throw IllegalArgumentException("Can't transfer not positive amount[$amount] of money. from - $accountFrom, to - $accountTo")
         }
         val now = nowProvider.localDateTime
+        log.debug("Current time is {} for transfer money: accountFrom {}, accountTo {}, amount {}", now, accountFrom, accountTo, amount)
         validateBalanceReduction(accountFrom, amount)
         accountFrom.lock.lock()
         try {
@@ -74,27 +78,34 @@ class AccountTransactionDaoImpl
             .computeIfAbsent(accountTo.accId) { ConcurrentSkipListMap() }
             .computeIfAbsent(today) { ConcurrentLinkedQueue() }
             .offer(transactionTo)
+        log.debug("Transactions from {} and to {} were generated for accountFrom {}, accountTo {}, amount {}",
+            transactionFrom, transactionTo, accountFrom, accountTo, amount)
         return transactionId
     }
 
     private fun validateBalanceReduction(account: Account, reduceAmount: BigDecimal) {
         if (account.negativeBalanceAllowed) {
+            log.debug("Account's {} balance is valid as negative balance is allowed for it", account)
             return
         }
         val accFromBalance = calcAccountBalance(account)
         if (accFromBalance.minus(reduceAmount) < BigDecimal.ZERO) {
             throw IllegalArgumentException("$account with current balance of [$accFromBalance] has insufficient funds to transfer $reduceAmount")
         }
+        log.debug("Account's {} balance is valid. Calculated balance {}, amount to subtract {}", account, accFromBalance, reduceAmount)
     }
 
-    private fun calcAccountBalance(account: Account) =
-        account.eodBalance +
+    private fun calcAccountBalance(account: Account): BigDecimal {
+        val result = account.eodBalance +
                 (accTransactionsByAccIdAndDate[account.accId]
                     ?.tailMap(account.balanceLastUpdateDate)?.values?.stream()
                     ?.flatMap { it.stream() }
                     ?.map { it.amount }
                     ?.reduce(BigDecimal.ZERO) { a, c -> a.add(c) }
                     ?: BigDecimal.ZERO)
+        log.debug("Balance {} was calculated for account {}", result, account)
+        return result
+    }
 
     override fun getAccountTransactionBalanceForDays(account: Account,
                                                      fromDate: LocalDate,
@@ -103,12 +114,14 @@ class AccountTransactionDaoImpl
                                                      toInclusive: Boolean): BigDecimal {
         if (!fromDate.isBefore(toDate))
             throw IllegalArgumentException("fromDate[$fromDate] must be earlier than toDate[$toDate]")
-        return accTransactionsByAccIdAndDate[account.accId]
+        val result = accTransactionsByAccIdAndDate[account.accId]
             ?.subMap(fromDate, fromInclusive, toDate, toInclusive)?.values?.stream()
             ?.flatMap { it.stream() }
             ?.map { it.amount }
             ?.reduce(BigDecimal.ZERO) { a, c -> a.add(c) }
             ?: BigDecimal.ZERO
+        log.debug("Balance {} was calculated for account {}, days from [{}, inc={}] to [{}, inc={}]", result, account, fromDate, fromInclusive, toDate, toInclusive)
+        return result
     }
 
 }

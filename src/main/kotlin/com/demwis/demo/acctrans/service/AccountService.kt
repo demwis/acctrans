@@ -41,12 +41,14 @@ class AccountServiceImpl(private val accountsDao: AccountsDao,
 
     override fun recalculateBalance() {
         val yesterday = nowProvider.localDate.minusDays(1)
+        log.debug("Balance recalculation job started for date {}", yesterday)
         accountsDao.getAllAccountsStream().forEach {
             recalculateBalanceExecutor.submit {
                 try {
                     it.lock.lock()
                     try {
                         if (yesterday.isAfter(it.balanceLastUpdateDate)) {
+                            log.debug("Balance recalculation for account {} started for date {}", it, yesterday)
                             val daysBalance = accountTransactionDao.getAccountTransactionBalanceForDays(
                                 it,
                                 it.balanceLastUpdateDate,
@@ -55,6 +57,9 @@ class AccountServiceImpl(private val accountsDao: AccountsDao,
                             )
                             it.eodBalance += daysBalance
                             it.balanceLastUpdateDate = yesterday
+                            log.debug("Balance recalculation for account {} for date {} was finished with days balance {}", it, yesterday, daysBalance)
+                        } else {
+                            log.debug("Balance recalculation for account {} for date {} was skipped", it, yesterday)
                         }
                     } finally {
                         it.lock.unlock()
