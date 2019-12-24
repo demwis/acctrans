@@ -29,6 +29,7 @@ import java.util.concurrent.Executors
  * * Write unit tests on money transfer
  * * Write integration tests
  * * Make server configurable via HOCON
+ * * Currencies aspect?
  */
 fun main(args: Array<String>) {
     val jsonObjectMapper: ObjectMapper = ObjectMapper()

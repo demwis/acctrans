@@ -10,6 +10,7 @@ import java.time.LocalDateTime
 import java.util.*
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.ConcurrentLinkedQueue
+import java.util.concurrent.ConcurrentNavigableMap
 import java.util.concurrent.ConcurrentSkipListMap
 import java.util.concurrent.atomic.AtomicLong
 
@@ -21,16 +22,23 @@ interface AccTransactionDao {
                                             fromInclusive: Boolean = true, toInclusive: Boolean = true): BigDecimal
 }
 
-class AccTransactionDaoImpl(private val nowProvider: NowProvider = DefaultNowProvider): AccTransactionDao {
-    private val transactionIdSequencer: AtomicLong =
-        AtomicLong()
+class AccTransactionDaoImpl
+    @JvmOverloads constructor(private val nowProvider: NowProvider = DefaultNowProvider,
+                            transactionIdSequencerSupplier: () -> AtomicLong = { AtomicLong() }): AccTransactionDao {
+    private val transactionIdSequencer: AtomicLong = transactionIdSequencerSupplier()
 
     private val accTransactionsById =
         ConcurrentHashMap<Long, List<AccountTransaction>>()
     private val accTransactionsByAccIdAndDate =
-        ConcurrentHashMap<String, ConcurrentSkipListMap<LocalDate, Queue<AccountTransaction>>>()
+        ConcurrentHashMap<String, ConcurrentNavigableMap<LocalDate, Queue<AccountTransaction>>>()
 
     override fun transferMoney(accountFrom: Account, accountTo: Account, amount: BigDecimal): Long {
+        if (accountFrom.accId == accountTo.accId) {
+            throw IllegalArgumentException("Can't transfer money between accounts with the same id. from - $accountFrom, to - $accountTo, amount=$amount")
+        }
+        if (amount <= BigDecimal.ZERO) {
+            throw IllegalArgumentException("Can't transfer not positive amount[$amount] of money. from - $accountFrom, to - $accountTo")
+        }
         val now = nowProvider.localDateTime
         validateBalanceReduction(accountFrom, amount)
         accountFrom.lock.lock()
@@ -75,7 +83,7 @@ class AccTransactionDaoImpl(private val nowProvider: NowProvider = DefaultNowPro
         }
         val accFromBalance = calcAccountBalance(account)
         if (accFromBalance.minus(reduceAmount) < BigDecimal.ZERO) {
-            throw IllegalArgumentException("Insufficient balance")
+            throw IllegalArgumentException("$account with current balance of [$accFromBalance] has insufficient funds to transfer $reduceAmount")
         }
     }
 
@@ -92,12 +100,15 @@ class AccTransactionDaoImpl(private val nowProvider: NowProvider = DefaultNowPro
                                                      fromDate: LocalDate,
                                                      toDate: LocalDate,
                                                      fromInclusive: Boolean,
-                                                     toInclusive: Boolean): BigDecimal =
-        accTransactionsByAccIdAndDate[account.accId]
+                                                     toInclusive: Boolean): BigDecimal {
+        if (!fromDate.isBefore(toDate))
+            throw IllegalArgumentException("fromDate[$fromDate] must be earlier than toDate[$toDate]")
+        return accTransactionsByAccIdAndDate[account.accId]
             ?.subMap(fromDate, fromInclusive, toDate, toInclusive)?.values?.stream()
             ?.flatMap { it.stream() }
             ?.map { it.amount }
             ?.reduce(BigDecimal.ZERO) { a, c -> a.add(c) }
             ?: BigDecimal.ZERO
+    }
 
 }
