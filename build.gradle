@@ -1,0 +1,62 @@
+plugins {
+    id 'application'
+    id 'distribution'
+    id 'java'
+    id 'groovy'
+    id 'org.jetbrains.kotlin.jvm' version '1.3.60'
+}
+
+group 'com.demwis.demo'
+version '1.0-SNAPSHOT'
+
+sourceCompatibility = 1.8
+def undertowVersion = "2.0.1.Final"
+def log4jVersion = "2.12.1"
+def jacksonVersion = "2.9.+"
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8"
+
+    compile 'org.codehaus.groovy:groovy-all:2.5.8'
+    compile "com.fasterxml.jackson.core:jackson-annotations:$jacksonVersion"
+    compile "com.fasterxml.jackson.core:jackson-core:$jacksonVersion"
+    compile "com.fasterxml.jackson.core:jackson-databind:$jacksonVersion"
+    compile "com.fasterxml.jackson.datatype:jackson-datatype-jdk8:$jacksonVersion"
+    compile "com.fasterxml.jackson.datatype:jackson-datatype-jsr310:$jacksonVersion"
+    compile "com.fasterxml.jackson.module:jackson-module-kotlin:$jacksonVersion"
+//    compile "com.googlecode.cqengine:cqengine:3.4.0"
+    compile 'com.typesafe:config:1.4.0'
+    compile "io.undertow:undertow-core:$undertowVersion"
+    compile "io.undertow:undertow-servlet:$undertowVersion"
+    compile "org.apache.logging.log4j:log4j-core:$log4jVersion"
+    compile "org.apache.logging.log4j:log4j-slf4j-impl:$log4jVersion"
+    compile 'org.quartz-scheduler:quartz:2.3.2'
+    compile "org.slf4j:slf4j-api:1.7.29"
+
+    testCompile 'org.apache.httpcomponents:httpclient:4.5.10'
+    testCompile 'org.apache.httpcomponents:httpcore:4.4.12'
+    testCompile 'org.spockframework:spock-core:1.3-groovy-2.5'
+    testCompile 'org.unitils:unitils-core:3.4.6'
+}
+
+compileKotlin {
+    kotlinOptions.jvmTarget = "1.8"
+}
+compileTestKotlin {
+    kotlinOptions.jvmTarget = "1.8"
+}
+
+def dir = (hasProperty("profile") && profile == "local") ? "" : "../"
+
+application {
+    mainClassName = 'com.demwis.demo.acctrans.server.AppServerKt'
+    applicationDefaultJvmArgs = ['-Dlog4j.configurationFile='+ dir +'cfg/log4j2.xml', '-Dconfig.file='+ dir +'cfg/application.conf']
+}
+
+applicationDistribution.from("cfg") {
+    into "cfg"
+}
