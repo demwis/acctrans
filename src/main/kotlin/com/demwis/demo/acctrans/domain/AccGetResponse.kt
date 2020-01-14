@@ -8,7 +8,8 @@ data class AccGetResponse
 @JsonCreator constructor(val accId: String,
                          val negativeBalanceAllowed: Boolean,
                          val eodBalance: BigDecimal,
+                         val currentBalance: BigDecimal,
                          val balanceLastUpdateDate: LocalDate
 ) {
-    constructor(account: Account) : this(account.accId, account.negativeBalanceAllowed, account.eodBalance, account.balanceLastUpdateDate)
+    constructor(account: Account, currentBalance: BigDecimal) : this(account.accId, account.negativeBalanceAllowed, account.eodBalance, currentBalance, account.balanceLastUpdateDate)
 }

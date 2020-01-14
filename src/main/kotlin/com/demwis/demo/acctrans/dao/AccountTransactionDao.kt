@@ -21,6 +21,8 @@ interface AccountTransactionDao {
 
     fun getAccountTransactionBalanceForDays(account: Account, fromDate: LocalDate, toDate: LocalDate,
                                             fromInclusive: Boolean = true, toInclusive: Boolean = true): BigDecimal
+
+    fun calcAccountBalance(account: Account): BigDecimal
 }
 
 class AccountTransactionDaoImpl
@@ -95,7 +97,7 @@ class AccountTransactionDaoImpl
         log.debug("Account's {} balance is valid. Calculated balance {}, amount to subtract {}", account, accFromBalance, reduceAmount)
     }
 
-    private fun calcAccountBalance(account: Account): BigDecimal {
+    override fun calcAccountBalance(account: Account): BigDecimal {
         val result = account.eodBalance +
                 (accTransactionsByAccIdAndDate[account.accId]
                     ?.tailMap(account.balanceLastUpdateDate)?.values?.stream()

@@ -3,8 +3,8 @@ package com.demwis.demo.acctrans.dao
 import com.demwis.common.DefaultNowProvider
 import com.demwis.common.NowProvider
 import com.demwis.demo.acctrans.domain.Account
+import com.demwis.demo.acctrans.exception.DuplicatedRecordException
 import org.slf4j.LoggerFactory
-import java.lang.RuntimeException
 import java.util.concurrent.ConcurrentHashMap
 import java.util.stream.Stream
 
@@ -37,17 +37,10 @@ class AccountsDaoImpl(private val nowProvider: NowProvider = DefaultNowProvider)
             negativeBalanceAllowed = negativeBalanceAllowed,
             balanceLastUpdateDate = nowProvider.localDate)
         if (accounts.putIfAbsent(accId, account) != null)
-            // TODO process exception
             throw DuplicatedRecordException("Account with id $accId already exists")
         log.debug("Account {} was created succesfully", account)
         return account
     }
 
     override fun getAllAccountsStream(): Stream<Account> = accounts.values.stream()
-}
-
-// TODO Move to a separate package
-class DuplicatedRecordException : RuntimeException {
-    constructor(message: String, cause: Throwable): super(message, cause)
-    constructor(message: String): super(message)
 }

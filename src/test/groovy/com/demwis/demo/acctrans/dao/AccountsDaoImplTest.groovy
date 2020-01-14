@@ -2,11 +2,10 @@ package com.demwis.demo.acctrans.dao
 
 import com.demwis.common.NowProvider
 import com.demwis.demo.acctrans.domain.Account
-import org.unitils.reflectionassert.ReflectionAssert
+import com.demwis.demo.acctrans.exception.DuplicatedRecordException
 import spock.lang.Specification
 
 import java.time.LocalDate
-import java.util.stream.Collectors
 
 import static java.util.stream.Collectors.toList
 import static org.unitils.reflectionassert.ReflectionAssert.assertLenientEquals

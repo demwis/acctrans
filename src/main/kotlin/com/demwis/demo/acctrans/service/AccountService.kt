@@ -17,7 +17,10 @@ interface AccountService {
     fun createAccount(accId: String, negativeBalanceAllowed: Boolean): Account
 
     fun findAccountById(accId: String): Account?
+
     fun recalculateBalance()
+
+    fun getAccountBalance(account: Account): BigDecimal
 }
 
 class AccountServiceImpl(private val accountsDao: AccountsDao,
@@ -70,4 +73,7 @@ class AccountServiceImpl(private val accountsDao: AccountsDao,
             }
         }
     }
+
+    override fun getAccountBalance(account: Account) =
+        accountTransactionDao.calcAccountBalance(account)
 }
